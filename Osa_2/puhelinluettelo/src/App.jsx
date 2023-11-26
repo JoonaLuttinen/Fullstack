@@ -1,9 +1,31 @@
 import { useState } from 'react'
 
-const Numbers = ({name}) => {
+const Filter = ({filter, setFilterOnChange}) => {
+  return(
+    <input value={filter} onChange={setFilterOnChange}/>
+  )
+}
+
+const Form = ({values, functions}) => {
+  return(
+    <form>
+      <div>
+        name: <input value={values.name} onChange={functions.setName}/>
+      </div>
+      <div>
+        number: <input value={values.number} onChange={functions.setNumber}/>
+      </div>
+      <div>
+        <button type="submit" onClick={functions.setClick}>add</button>
+      </div>
+    </form>
+  )
+}
+
+const Numbers = ({name, number}) => {
   return(
     <div>
-      {name}
+      {name} {number}
     </div>
   )
 
@@ -11,42 +33,71 @@ const Numbers = ({name}) => {
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
+    {name: 'Arto Hellas', number: 1234567812},
+    {name: 'Petteri Saarijärvi', number: 8407788325},
+    {name: 'Petri järvi', number: 894387284},
+
   ]) 
   const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
+  const [filteredList, setFilteredList] = useState(persons)
 
-  const setOnChange = (event) => {
-    console.log(event.target.value)
+  const setNameOnChange = (event) => {
     setNewName(event.target.value)
   }
+
+  const setNumberOnChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const setFilterOnChange = (event) => {
+    setFilter(event.target.value)
+
+    const tempFilter = persons.filter((person) => {
+      const re = new RegExp(event.target.value, "i");
+      return(person.name.match(re))
+    })
+
+    setFilteredList(tempFilter)
+  }
+
 
   const setOnClick = (event) => {
     event.preventDefault()
 
-    const newPerson = {name: newName}
-    setPersons(persons.concat(newPerson))
-    setNewName('')
+    const found = persons.find((person) => person.name === newName)
+    
+    if(found !== undefined){
+        alert(`${newName} is already added to phonebook`)
+    }
+    else {
+      const newPerson = {name: newName, number: newNumber}
+
+      setPersons(persons.concat(newPerson))
+      setFilteredList(persons.concat(newPerson))
+      setNewName('')
+      setNewNumber('')
+      setFilter('')
+    }
+    
 
   }
+
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form>
-        <div>
-          name: <input 
-                  value={newName}
-                  onChange={setOnChange}
-                />
-        </div>
-        <div>
-          <button type="submit" onClick={setOnClick}>add</button>
-        </div>
-      </form>
-      <div>debug: {newName}</div>
-      <h2>Numbers</h2>
       <div>
-        {persons.map(person => <Numbers name={person.name} key={person.name}/>)}
+        <Filter filter={filter} setFilterOnChange={setFilterOnChange}/>
+      </div>
+
+      <h3>Add a new</h3>
+      <Form values={{name: newName, number: newNumber}} 
+            functions={{setName: setNameOnChange, setNumber: setNumberOnChange, setClick: setOnClick}}/>
+      <h3>Numbers</h3>
+      <div>
+        {filteredList.map(person => <Numbers name={person.name} number={person.number} key={person.name}/>)}
       </div>
       
     </div>
