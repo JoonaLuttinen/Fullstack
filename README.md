@@ -1,4 +1,4 @@
-##Here will be all the necessary commands for this project and meaby some additional information as well
+## Here will be all the necessary commands for this project and meaby some additional information as well
 
 ### Starting a new project
 
