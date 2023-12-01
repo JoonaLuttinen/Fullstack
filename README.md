@@ -2,7 +2,7 @@ Here will be all the necessary commands for this project and meaby some addition
 
 ### Starting a new project
 
-```
+```powershell
 npm create vite@latest part1 -- --template react
 cd part1
 npm install
