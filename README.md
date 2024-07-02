@@ -35,5 +35,10 @@ now you can run the server with
 npm run server
 ```
 
+### starting the frontend 
 
+after all of the above is done just go to the root folder and run
+```powershell
+npm run dev
+```
 
