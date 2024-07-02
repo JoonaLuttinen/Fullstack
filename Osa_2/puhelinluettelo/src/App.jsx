@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import phoneBook from './services/phoneBook'
 
 const Filter = ({filter, setFilterOnChange}) => {
   return(
@@ -39,7 +40,7 @@ const App = () => {
   const [filter, setFilter] = useState('')
   const [filteredList, setFilteredList] = useState(persons)
 
-  const hook = () => {
+  /*const hook = () => {
     axios
       .get('http://localhost:3001/persons')
       .then(response => {
@@ -47,6 +48,14 @@ const App = () => {
         setFilteredList(response.data)
       })
   }
+*/
+  const hook = () => {
+    phoneBook
+    .getAll()
+    .then((personsData) => {
+      setPersons(personsData)
+      setFilteredList(personsData)
+    })}
   
   useEffect(hook, [])
 
@@ -60,7 +69,7 @@ const App = () => {
 
   const setFilterOnChange = (event) => {
     setFilter(event.target.value)
-
+    
     const tempFilter = persons.filter((person) => {
       const re = new RegExp(event.target.value, "i");
       return(person.name.match(re))

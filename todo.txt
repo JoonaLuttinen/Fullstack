@@ -1,6 +1,6 @@
 Selvitettävät asia
 
-1. mitä miten event välitetään ja mistä se saa sisällönsä
+1. miten event välitetään ja mistä se saa sisällönsä
 
 2. mitä ? funktiot tekee. Tämä toimii seuraavasti. ehto ? true : false. Eli ensimmäisenä on ehto vaikka x == 5. Jos ehto on tosi palautetaan kohdassa true oleva variable.
 Jos ehto on epätosi, palautetaan kohdassa false oleva variable
