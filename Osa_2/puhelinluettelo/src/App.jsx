@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import phoneBook from './services/phoneBook'
+import Notification from './components/Notification'
+import ErrorMessage from './components/errorMessage'
 
 const Filter = ({filter, setFilterOnChange}) => {
   return(
@@ -10,7 +11,7 @@ const Filter = ({filter, setFilterOnChange}) => {
 
 const Form = ({values, functions}) => {
   return(
-    <form>
+    <form name="persons">
       <div>
         name: <input value={values.name} onChange={functions.setName}/>
       </div>
@@ -24,14 +25,19 @@ const Form = ({values, functions}) => {
   )
 }
 
-const Numbers = ({name, number}) => {
+const Numbers = ({person, deleteButtonOnClick}) => {
+
   return(
     <div>
-      {name} {number}
+      
+      {person.name} {person.number} 
+      <button onClick={() => deleteButtonOnClick(person)}>delete</button>
+
     </div>
   )
 
 }
+
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -39,16 +45,10 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [filteredList, setFilteredList] = useState(persons)
+  const [addedMessage, setAddedMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
-  /*const hook = () => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-        setFilteredList(response.data)
-      })
-  }
-*/
+
   const hook = () => {
     phoneBook
     .getAll()
@@ -80,30 +80,72 @@ const App = () => {
 
 
   const setOnClick = (event) => {
+ 
     event.preventDefault()
-
     const found = persons.find((person) => person.name === newName)
     
     if(found !== undefined){
-        alert(`${newName} is already added to phonebook`)
+        if (window.confirm(`${found.name} has already been added to phonebook, do you want to replace the old number ${found.number} with the new one ${newNumber}`)){
+
+          const updatedPerson = {name: found.name, number: newNumber}
+          phoneBook.updateNumber(updatedPerson, found.id).then( returnedData => {setPersons(persons.concat(returnedData))
+            setFilteredList(persons.concat(returnedData))
+            setNewName('')
+            setNewNumber('')
+            setFilter('')}).catch(error => {
+              setErrorMessage(`${found.name} was already removed from the server`)
+              console.log(error);
+              setTimeout(()=>{
+                setErrorMessage(null)
+              },5000)
+            })
+        }
     }
+
     else {
+
       const newPerson = {name: newName, number: newNumber}
 
-      setPersons(persons.concat(newPerson))
-      setFilteredList(persons.concat(newPerson))
+      phoneBook.addNumber(newPerson).then( returnedData => {
+      
+      setPersons(persons.concat(returnedData))
+      setFilteredList(persons.concat(returnedData))
+
+      setAddedMessage(`Added ${newPerson.name}`)
+      setTimeout(()=>{
+        setAddedMessage(null)
+      },5000)
+
       setNewName('')
       setNewNumber('')
       setFilter('')
+     
+      })
     }
     
 
   }
 
+  const deleteButtonOnClick = (personInfo) => {
+    //event.preventDefault()
+
+    if(window.confirm(`Do you want to delete this number \"${personInfo.name} ${personInfo.number}"\?`)){
+
+      phoneBook.deleteNumber(personInfo.id).then(() => {setPersons(persons.filter(person => person.id !== personInfo.id))
+      setFilteredList(persons.filter(person => person.id !== personInfo.id))
+      })
+    }
+  } 
+
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <div>
+        <Notification message={addedMessage}/>
+        <ErrorMessage errorMessage={errorMessage}/>
+      </div>
+      
       <div>
         <Filter filter={filter} setFilterOnChange={setFilterOnChange}/>
       </div>
@@ -113,9 +155,8 @@ const App = () => {
             functions={{setName: setNameOnChange, setNumber: setNumberOnChange, setClick: setOnClick}}/>
       <h3>Numbers</h3>
       <div>
-        {filteredList.map(person => <Numbers name={person.name} number={person.number} key={person.name}/>)}
+        {filteredList.map(person => <Numbers person={person} deleteButtonOnClick={deleteButtonOnClick} key={person.name}/>)}
       </div>
-      
     </div>
   )
 
