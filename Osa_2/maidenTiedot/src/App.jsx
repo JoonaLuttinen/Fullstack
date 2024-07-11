@@ -4,12 +4,19 @@ import countries from './services/getCountries'
 
 const Filter = ({value, setFilterOnChance}) => {
   return (
-  <input value={value} onChange={setFilterOnChance}/>
+    <div>
+      find countries
+      < input value={value} onChange={setFilterOnChance}/>
+    </div>
   )
 }
 
-const CountryDisplay = ({country})=>{
-    
+const CountryDisplay = ({country, ifRender})=>{
+
+  if(ifRender !== 'list'){
+    return null
+  }
+
   return(
     <li>
       {country}
@@ -17,10 +24,51 @@ const CountryDisplay = ({country})=>{
   )
 }
 
-const TooLongDisplay = () => {
+const TooLongDisplay = ({ifRender}) => {
+
+  if(ifRender !== 'tooMany'){
+    return null
+  }
+
   return(
     <div>
       Too many matches, specify another filter
+    </div>
+  )
+}
+
+const DetailsDisplay = ({ifRender, countryDetails, flag}) => {
+
+  console.log(flag);
+
+  if(ifRender !== 'details'){
+    return null
+  }
+
+  return(
+    <div>
+      <h1>{countryDetails.name.common}</h1>
+        <ul>
+          {countryDetails.capital}
+        </ul>
+        <ul>
+          area {countryDetails.area}
+        </ul>
+        <ul>
+          population {countryDetails.population}
+        </ul>
+      <h3>Languages</h3>
+        <div>
+          {Object.values(countryDetails.languages).map((language)=>{
+            return(
+              <li key={language}>
+                {language}
+              </li>
+            )})}
+        </div>
+        <div>
+          {flag}
+        </div>
     </div>
   )
 }
@@ -31,7 +79,8 @@ function App() {
   const [oneCountry, setOneCountry] = useState(null)
   const [filter, setFilter] = useState('')
   const [filteredList, setFilteredList] = useState('')
-  const [isTooLong, setIsTooLong] = useState(true)
+  const [ifRender, setIfRender] = useState('tooMany')
+  const [flag, setFlag] = useState(null)
 
   useEffect(()=>{
     const tempData = []
@@ -51,16 +100,29 @@ function App() {
     })
 
     if(filterList.length > 10 ){
-      setIsTooLong(true)
+      setIfRender('tooMany')
     }
     else if(filterList.length === 1){
-      countries.getOne(filterList)
-      .then((response) => {
+
+      const data = countries.getOne(filterList)
+      const binaryImage = null
+
+      data.then((response) => {
         setOneCountry(response)
-        setIsTooLong(false)})
+        setIfRender('details')
+      })
+
+      binaryImage = data.then((response)=>{return(countries.getFlag(response.flags.png))})
+      console.log(binaryImage);
+
+
+
+      
+      
+      
     }
     else{
-      setIsTooLong(false)
+      setIfRender('list')
     }
 
     setFilter(event.target.value)
@@ -75,7 +137,9 @@ function App() {
   return (
       <div>
         <Filter value={filter} setFilterOnChance={setFilterOnChance}/>
-        {isTooLong ? <TooLongDisplay/> : filteredList.map(country => <CountryDisplay country={country} key={country}/>)}
+        <TooLongDisplay ifRender={ifRender}/> 
+        {filteredList.map(country => <CountryDisplay country={country} ifRender={ifRender} key={country}/>)}
+        <DetailsDisplay ifRender={ifRender} countryDetails={oneCountry} flag={flag}/>
       </div>
   )
 }
