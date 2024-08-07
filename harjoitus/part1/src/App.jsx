@@ -49,7 +49,6 @@ const App = (props) => {
     .create(noteObject)
     .then(returnedNote => {
     setNotes(notes.concat(returnedNote))
-    console.log(returnedNote)
     
     setNewNote('')
       })

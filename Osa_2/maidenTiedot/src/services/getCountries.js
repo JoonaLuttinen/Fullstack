@@ -15,7 +15,7 @@ const getOne = (country) => {
 }
 
 const getFlag = (url) => {
-    const request = axios.get(url,{responseType: 'arraybuffer'})
+    const request = axios.get(url)
     return request.then(response => response.data)
 }
 

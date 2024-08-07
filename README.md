@@ -41,4 +41,21 @@ after all of the above is done just go to the root folder and run
 ```powershell
 npm run dev
 ```
+### Backend
 
+projektin juureen luodaan runko komennolla 
+
+```npm init
+```
+ja lisätään package.js tiedostoon "scripts" kohtaan 
+
+```"start":"node index.js"
+```
+serverin sisältö tulee siis laittaa fileen nimeltä  index.js
+
+jotta selain näkymnän saa päivitettyä automaattisesti ilman että
+serveriä tarvitsee uudelleen käynnistää joka kerta voidaan käyttää nodemonia lataamalla sen komennolla
+
+```
+npm install --save-dev nodemon
+```

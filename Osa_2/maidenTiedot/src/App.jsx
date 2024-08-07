@@ -39,8 +39,6 @@ const TooLongDisplay = ({ifRender}) => {
 
 const DetailsDisplay = ({ifRender, countryDetails, flag}) => {
 
-  console.log(flag);
-
   if(ifRender !== 'details'){
     return null
   }
@@ -66,9 +64,7 @@ const DetailsDisplay = ({ifRender, countryDetails, flag}) => {
               </li>
             )})}
         </div>
-        <div>
-          {flag}
-        </div>
+        <img src={flag}/>
     </div>
   )
 }
@@ -81,6 +77,7 @@ function App() {
   const [filteredList, setFilteredList] = useState('')
   const [ifRender, setIfRender] = useState('tooMany')
   const [flag, setFlag] = useState(null)
+  const [blob, setBlob] = useState(null)
 
   useEffect(()=>{
     const tempData = []
@@ -94,6 +91,8 @@ function App() {
 
   const setFilterOnChance = (event) => {
 
+    let binaryImage = null
+
     const filterList = allCountries.filter((country)=>{
       const re = new RegExp(event.target.value, 'i')
       return(country.match(re))
@@ -102,25 +101,19 @@ function App() {
     if(filterList.length > 10 ){
       setIfRender('tooMany')
     }
-    else if(filterList.length === 1){
 
+    else if(filterList.length === 1){
       const data = countries.getOne(filterList)
-      const binaryImage = null
 
       data.then((response) => {
         setOneCountry(response)
         setIfRender('details')
       })
 
-      binaryImage = data.then((response)=>{return(countries.getFlag(response.flags.png))})
-      console.log(binaryImage);
-
-
-
-      
-      
+      data.then((response)=>{return(countries.getFlag(response.flags.png))}).then((response) => {console.log(response)})
       
     }
+
     else{
       setIfRender('list')
     }
