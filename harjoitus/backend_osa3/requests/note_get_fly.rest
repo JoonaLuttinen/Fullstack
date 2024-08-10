@@ -1,0 +1,1 @@
+GET https://backend-osa3.fly.dev/api/notes
