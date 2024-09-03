@@ -2,6 +2,6 @@ PUT http://localhost:3001/api/notes/66b4eaa2ecea35486fb9a428
 Content-Type: application/json
 
 {
-    "content": "trying to change the first note",
+    "content": "lol",
     "important": true
 }

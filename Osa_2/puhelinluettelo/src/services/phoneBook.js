@@ -6,9 +6,10 @@ const getAll = () => {
     return request.then(response => response.data)
 }
 
-const addNumber = newPerson => {
+const addNumber = newPerson => {    
     const request = axios.post(baseUrl, newPerson)
     return request.then(response => response.data)
+
 }
 
 const deleteNumber = (deletePerson) => {

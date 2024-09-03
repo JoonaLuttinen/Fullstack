@@ -88,42 +88,55 @@ const App = () => {
         if (window.confirm(`${found.name} has already been added to phonebook, do you want to replace the old number ${found.number} with the new one ${newNumber}`)){
 
           const updatedPerson = {name: found.name, number: newNumber}
-          phoneBook.updateNumber(updatedPerson, found.id).then( returnedData => {setPersons(persons.concat(returnedData))
-            setFilteredList(persons.concat(returnedData))
+
+          phoneBook.updateNumber(updatedPerson, found.id).then( returnedData => 
+            { 
+              setPersons(prevPeople => {
+              const index = prevPeople.findIndex(person => person.name === found.name)
+              let newListOfPeople = prevPeople
+              newListOfPeople[index] = returnedData
+              return newListOfPeople
+            })
+            setFilteredList(prevFilteredList => {
+              const index  = prevFilteredList.findIndex(person => person.name === found.name)
+              let newFilteredPeople = prevFilteredList
+              newFilteredPeople[index] = returnedData
+              return newFilteredPeople
+            })
+            
             setNewName('')
             setNewNumber('')
-            setFilter('')}).catch(error => {
-              setErrorMessage(`${found.name} was already removed from the server`)
-              console.log(error);
+            setFilter('')
               setTimeout(()=>{
                 setErrorMessage(null)
-              },5000)
+            },5000)
             })
         }
     }
-
     else {
-
       const newPerson = {name: newName, number: newNumber}
 
-      phoneBook.addNumber(newPerson).then( returnedData => {
-      
-      setPersons(persons.concat(returnedData))
-      setFilteredList(persons.concat(returnedData))
+      phoneBook.addNumber(newPerson).then( returnedData => {        
+        setPersons(persons.concat(returnedData))
+        setFilteredList(persons.concat(returnedData))
 
-      setAddedMessage(`Added ${newPerson.name}`)
-      setTimeout(()=>{
-        setAddedMessage(null)
-      },5000)
+        setAddedMessage(`Added ${newPerson.name}`)
+        setTimeout(()=>{
+          setAddedMessage(null)
+        },5000)
 
-      setNewName('')
-      setNewNumber('')
-      setFilter('')
-     
+        setNewName('')
+        setNewNumber('')
+        setFilter('')
       })
-    }
-    
-
+      .catch((error) => {
+        const errorMessage = error.response.data
+        setErrorMessage(errorMessage.error)
+        setTimeout(()=>{
+          setErrorMessage(null)
+        },5000)
+      })
+      }
   }
 
   const deleteButtonOnClick = (personInfo) => {
