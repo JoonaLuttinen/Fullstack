@@ -142,7 +142,7 @@ const App = () => {
   const deleteButtonOnClick = (personInfo) => {
     //event.preventDefault()
 
-    if(window.confirm(`Do you want to delete this number \"${personInfo.name} ${personInfo.number}"\?`)){
+    if(window.confirm(`Do you want to delete this number "${personInfo.name} ${personInfo.number}"`)){
 
       phoneBook.deleteNumber(personInfo.id).then(() => {setPersons(persons.filter(person => person.id !== personInfo.id))
       setFilteredList(persons.filter(person => person.id !== personInfo.id))

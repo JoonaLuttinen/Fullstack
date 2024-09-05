@@ -11,15 +11,15 @@ const Filter = ({value, setFilterOnChance}) => {
   )
 }
 
-const CountryDisplay = ({country, ifRender})=>{
+const CountryDisplay = ({country, ifRender, setShowButton})=>{
 
   if(ifRender !== 'list'){
     return null
   }
-
+  
   return(
     <li>
-      {country}
+      {country} <button onClick={() => setShowButton(country)}>show</button>
     </li>
   )
 }
@@ -37,12 +37,12 @@ const TooLongDisplay = ({ifRender}) => {
   )
 }
 
-const DetailsDisplay = ({ifRender, countryDetails, flag}) => {
+const DetailsDisplay = ({ifRender, countryDetails, flag, weather, weatherIcon}) => {
 
   if(ifRender !== 'details'){
     return null
   }
-
+  
   return(
     <div>
       <h1>{countryDetails.name.common}</h1>
@@ -65,6 +65,10 @@ const DetailsDisplay = ({ifRender, countryDetails, flag}) => {
             )})}
         </div>
         <img src={flag}/>
+        <h2>Weather in {countryDetails.capital}</h2>
+        <div>temperature {weather.temp} Celcius</div>
+        <img src={weatherIcon}/>
+        <div>wind {weather.windSpeed} m/s</div>
     </div>
   )
 }
@@ -77,7 +81,8 @@ function App() {
   const [filteredList, setFilteredList] = useState('')
   const [ifRender, setIfRender] = useState('tooMany')
   const [flag, setFlag] = useState(null)
-  const [blob, setBlob] = useState(null)
+  const [weather, setWeather] = useState({})
+  const [weatherIcon, setWeatherIcon] = useState(null)
 
   useEffect(()=>{
     const tempData = []
@@ -88,10 +93,7 @@ function App() {
     setAllCountries(tempData)
     setFilteredList(tempData)})},[])
  
-
   const setFilterOnChance = (event) => {
-
-    let binaryImage = null
 
     const filterList = allCountries.filter((country)=>{
       const re = new RegExp(event.target.value, 'i')
@@ -103,15 +105,30 @@ function App() {
     }
 
     else if(filterList.length === 1){
-      const data = countries.getOne(filterList)
+      const data = countries.getOne(filterList[0])
 
       data.then((response) => {
+        console.log(response);
+        
+        setFlag(response.flags.png)
         setOneCountry(response)
         setIfRender('details')
-      })
 
-      data.then((response)=>{return(countries.getFlag(response.flags.png))}).then((response) => {console.log(response)})
-      
+        const coordinates = countries.getCoordinates(response.capital, response.ccn3, null)
+
+        coordinates.then((response) => {
+          const countryWeather = countries.getWeather(response[0].lat, response[0].lon)
+          countryWeather.then((response) => {
+            const newWeather = {temp:response.current.temp, windSpeed:response.current.wind_speed}
+            setWeather(newWeather)
+
+            const iconId = response.current.weather[0].icon
+            setWeatherIcon(`https://openweathermap.org/img/wn/${iconId}@2x.png`)
+          })
+          
+        
+        })
+      })    
     }
 
     else{
@@ -120,10 +137,36 @@ function App() {
 
     setFilter(event.target.value)
     setFilteredList(filterList)
-  }
+    }
 
-  if(!allCountries){
+    if(!allCountries){
     return null
+    }
+
+
+  const setShowButton = (country) => {
+    const data = countries.getOne(country)
+
+    data.then((response) => {
+      setFlag(response.flags.png)
+      setOneCountry(response)
+      setIfRender('details')
+
+      const coordinates = countries.getCoordinates(response.capital, response.ccn3, null)
+
+        coordinates.then((response) => {
+          const countryWeather = countries.getWeather(response[0].lat, response[0].lon)
+          countryWeather.then((response) => {
+            const newWeather = {temp:response.current.temp, windSpeed:response.current.wind_speed}
+            setWeather(newWeather)
+
+            const iconId = response.current.weather[0].icon
+            setWeatherIcon(`https://openweathermap.org/img/wn/${iconId}@2x.png`)
+          })
+        })
+    })
+
+    setFilter("")
   }
 
 
@@ -131,8 +174,8 @@ function App() {
       <div>
         <Filter value={filter} setFilterOnChance={setFilterOnChance}/>
         <TooLongDisplay ifRender={ifRender}/> 
-        {filteredList.map(country => <CountryDisplay country={country} ifRender={ifRender} key={country}/>)}
-        <DetailsDisplay ifRender={ifRender} countryDetails={oneCountry} flag={flag}/>
+        {filteredList.map(country => <CountryDisplay country={country} ifRender={ifRender} key={country} setShowButton={setShowButton}/>)}
+        <DetailsDisplay ifRender={ifRender} countryDetails={oneCountry} flag={flag} weather={weather} weatherIcon={weatherIcon}/>
       </div>
   )
 }
