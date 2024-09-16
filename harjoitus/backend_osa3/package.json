@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "dev": "nodemon index.js",
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../part1 && npm run build && @powershell Copy-Item dist -Recurse ../backend_osa3",
-    "deploy": "fly deploy",
+    "deploy": "flyctl deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs",
+    "logs:prod": "flyctl logs",
     "lint": "eslint ."
   },
   "author": "Joona Luttinen",

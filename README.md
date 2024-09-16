@@ -59,3 +59,7 @@ serveriä tarvitsee uudelleen käynnistää joka kerta voidaan käyttää nodemo
 ```
 npm install --save-dev nodemon
 ```
+
+.env:n lataus
+```npm install dotenv
+```
